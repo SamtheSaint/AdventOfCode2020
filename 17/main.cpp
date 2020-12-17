@@ -76,10 +76,12 @@ int countActiveNeighbours(const World& world,
 }
 
 // cell will change
-bool conwayRules(const World& world, const int w, const int z, const int x, const int y) {
+bool conwayRules(const World& world,
+  const int w, const int z, const int x, const int y) {
   const char cur = world[w][z][x][y];
   int activeNeighbours = countActiveNeighbours(world, w, z, x, y);
-  if (cur == active && (activeNeighbours < 2 || activeNeighbours > 3)) return true;
+  if (cur == active &&
+    (activeNeighbours < 2 || activeNeighbours > 3)) return true;
   if (cur == inactive && activeNeighbours == 3) return true;
   return false;
 }
@@ -110,28 +112,12 @@ World simulate(const World& world) {
     }
   }
 
-
-  // printWorld(newWorld);
-  // exit(1);
-
-  // for (int _z = 0; _z < z + 2; _z++) {
-  //   for (int _x = 0; _x < x + 2; _x++) {
-  //     for (int _y = 0; _y < y + 2; _y++) {
-  //       cout << countActiveNeighbours(newWorld, _z, _x, _y) << " ";
-  //     }
-  //     cout << endl;
-  //   }
-  //   cout << endl;
-  // }
-
   unordered_map<int,
     unordered_map<int,
     unordered_map<int,
     unordered_map<int, bool>>>> willChange;
 
   // check all directions for every element we placed in newWorld
-  // because of +1 padding don't need to check in range
-  // however function inRange exists so nothing goes wrong
   for (int _w = 0; _w < w + 2; _w++) {
     for (int _z = 0; _z < z + 2; _z++) {
       for (int _x = 0; _x < x + 2; _x++) {
@@ -152,7 +138,9 @@ World simulate(const World& world) {
         for (const auto& yplane : xplane.second) {
           int _y = yplane.first;
           const char cur = newWorld[_w][_z][_x][_y];
-          if (yplane.second) newWorld[_w][_z][_x][_y] = (cur == active) ? inactive : active;
+          if (yplane.second) newWorld[_w][_z][_x][_y] = (cur == active)
+            ? inactive
+            : active;
         }
       }
     }
@@ -180,12 +168,10 @@ int main(int argc, char const* argv[])
   world.push_back(slice3);
 
   const int numCycles = 6;
-  // printWorld(world);
   for (int i = 0; i < numCycles; i++) {
     world = simulate(world);
     cout << "Cycle " << i + 1 << ": Active: "
       << countActiveCells(world) << endl;
-    // printWorld(world);
   }
   return 0;
 }
