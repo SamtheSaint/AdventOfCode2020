@@ -7,22 +7,106 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <unordered_map>
-#include <unordered_set>
-#include <queue>
 #include <stack>
-#include <cstdlib>
 #include <cstdint>
 #include <cassert>
-#include <cmath>
-#include <random>
-#include <algorithm>
-#include <utility>
 
 #define openBracket '('
 #define closeBracket ')'
 #define add '+'
 #define multiply '*'
+
+bool isOperator(const char c) {
+  return (c == add) || (c == multiply);
+}
+
+bool isOperand(const char c) {
+  return (c >= '0') && (c <= '9');
+}
+
+int precedence(const char c) {
+  // change precedence between part one and two
+  if (c == multiply) return 1;
+  if (c == add) return 2;
+  return -1;
+}
+
+std::string infixToPostfix(const std::string& expression) {
+  std::stringstream res;
+  std::stringstream ss(expression);
+  std::stack<char> operators;
+  char c;
+  while (ss >> c) {
+    if (isOperand(c)) {
+      res << c;
+      continue;
+    }
+    if (isOperator(c)) {
+      if (operators.empty() || (precedence(c) > precedence(operators.top()))) {
+        operators.push(c);
+        continue;
+      }
+      while (!operators.empty()
+        && (operators.top() != openBracket)
+        && precedence(operators.top()) >= precedence(c)) {
+        res << operators.top();
+        operators.pop();
+      }
+      operators.push(c);
+      continue;
+    }
+    if (c == openBracket) {
+      operators.push(c);
+      continue;
+    }
+    if (c == closeBracket) {
+      while (operators.top() != openBracket) {
+        res << operators.top();
+        operators.pop();
+      }
+      operators.pop();
+      continue;  // discard openBracket
+    }
+  }
+  while (!operators.empty()) {
+    res << operators.top();
+    operators.pop();
+  }
+
+  return res.str();
+}
+
+int64_t applyOperation(const char c, int64_t num1, int64_t num2) {
+  assert(isOperator(c) && "Cannot apply unknown operator");
+  if (c == add) return num1 + num2;
+  if (c == multiply) return num1 * num2;
+  assert(false && "Operator not implemented");
+}
+
+int64_t evalPostfix(const std::string& equation) {
+  std::stack<int64_t> operands;
+  std::stringstream ss(equation);
+  int64_t acc = 0;
+  char c;
+
+  while (ss >> c) {
+    if (isOperand(c)) {
+      operands.push(c - '0');
+      continue;
+    }
+    if (isOperator(c)) {
+      int64_t num1 = operands.top();
+      operands.pop();
+      int64_t num2 = operands.top();
+      operands.pop();
+      int64_t res = applyOperation(c, num1, num2);
+      operands.push(res);
+    }
+  }
+
+  assert(operands.size() == 1);
+  return operands.top();
+}
 
 int64_t eval(const std::string& equation) {
   std::stack<int64_t> operands;
@@ -83,17 +167,15 @@ int main(int argc, char const* argv[])
   std::string s;
 
   while (getline(std::cin, s)) {
-    equations.push_back(s);
+    equations.push_back(infixToPostfix(s));
   }
 
   int64_t acc = 0;
   for (const std::string& equation : equations) {
-    int64_t cur = eval(equation);
-    std::cout << cur << std::endl;
+    int64_t cur = evalPostfix(equation);
+    // int64_t cur = evalPostfix(equation);
     acc += cur;
   }
   std::cout << acc << std::endl;
-
-  // TODO(SamtheSant) - implement full infix to postfix for part two
   return 0;
 }
