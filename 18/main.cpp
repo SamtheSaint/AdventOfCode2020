@@ -171,9 +171,7 @@ int main(int argc, char const* argv[]) {
 
   int64_t acc = 0;
   for (const std::string& equation : equations) {
-    int64_t cur = evalPostfix(equation);
-    // int64_t cur = evalPostfix(equation);
-    acc += cur;
+    acc += evalPostfix(equation);
   }
   std::cout << acc << std::endl;
   return 0;
