@@ -161,8 +161,7 @@ int64_t eval(const std::string& equation) {
   return operands.top();
 }
 
-int main(int argc, char const* argv[])
-{
+int main(int argc, char const* argv[]) {
   std::vector<std::string> equations;
   std::string s;
 
